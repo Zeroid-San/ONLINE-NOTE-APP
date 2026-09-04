@@ -2,7 +2,7 @@
 
 # 🚀 Streamline Checklist Notepad
 
-[![GitHub release](https://img.shields.io/github/v/release/yourusername/streamline-checklist?style=flat-square)](https://github.com/yourusername/streamline-checklist/releases)
+[![GitHub release](https://img.shields.io/github/v/release/Zeroid-Sannn/streamline-checklist?style=flat-square)](https://github.com/Zeroid-Sannn/streamline-checklist/releases)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square)](LICENSE)
 [![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=flat-square&logo=html5&logoColor=white)](https://developer.mozilla.org/en-US/docs/Web/HTML)
 [![JavaScript](https://img.shields.io/badge/JavaScript-F7DF1E?style=flat-square&logo=javascript&logoColor=black)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
@@ -37,4 +37,4 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/yourusername/streamline-checklist.git](https://github.com/Zeroid-Sannn/streamline-checklist.git)
+   git clone [https://github.com/Zeroid-Sannn/streamline-checklist.git](https://github.com/Zeroid-Sannn/streamline-checklist.git)
