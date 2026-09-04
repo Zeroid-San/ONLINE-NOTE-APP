@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streamline Checklist Notepad</title>
+    <style>
+        :root {
+            --bg-color: #0f1117;
+            --surface-color: #1a1d24;
+            --surface-hover: #222631;
+            --primary-color: #6366f1;
+            --primary-hover: #4f46e5;
+            --text-color: #f3f4f6;
+            --text-secondary: #9ca3af;
+            --border-color: #2e3542;
+            --danger-color: #ef4444;
+            --danger-bg: rgba(239, 68, 68, 0.1);
+            --radius: 12px;
+            --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 720px;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 32px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 1px rgba(255, 255, 255, 0.05) inset;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            letter-spacing: -0.025em;
+            background: linear-gradient(135deg, #f3f4f6 30%, #9ca3af 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            background: rgba(255, 255, 255, 0.03);
+            padding: 6px 12px;
+            border-radius: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        /* Settings Dropdown */
+        .settings-dropdown-wrapper {
+            position: relative;
+        }
+
+        .settings-btn {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .settings-btn:hover {
+            background: var(--surface-hover);
+            border-color: var(--primary-color);
+        }
+
+        .settings-menu {
+            position: absolute;
+            right: 0;
+            top: calc(100% + 6px);
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            width: 160px;
+            z-index: 1000;
+            overflow: hidden;
+            animation: menuPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .settings-menu.show {
+            display: flex;
+        }
+
+        .settings-menu label {
+            padding: 10px 14px 4px 14px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-menu select {
+            width: 100%;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
+            padding: 6px 8px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .workspace {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .input-group {
+            position: relative;
+        }
+
+        textarea {
+            width: 100%;
+            height: 140px;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 16px;
+            font-size: 0.95rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+        }
+
+        .actions-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        button.primary-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            padding: 12px 24px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+        }
+
+        button.primary-btn:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-1px);
+        }
+
+        button.primary-btn:active {
+            transform: translateY(0);
+        }
+
+        button.secondary-btn {
+            background-color: transparent;
+            color: var(--danger-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px 16px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        button.secondary-btn:hover {
+            background-color: var(--danger-bg);
+            border-color: var(--danger-color);
+        }
+
+        .clear-text-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .clear-text-btn:hover {
+            color: var(--text-color);
+        }
+
+        .workspace.drag-file-over textarea {
+            border-color: var(--primary-color);
+            background-color: var(--surface-hover);
+        }
+
+        .checklist-container {
+            margin-top: 4px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+            padding-right: 6px;
+        }
+
+        .checklist-container::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .checklist-container::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .checklist-container::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .checklist-container::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 14px 16px;
+            background-color: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            position: relative;
+            cursor: grab;
+            animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            transition: var(--transition);
+        }
+
+        .checklist-item:active {
+            cursor: grabbing;
+        }
+
+        .checklist-item.dragging {
+            opacity: 0.3;
+            border: 1px dashed var(--primary-color);
+            background: transparent;
+        }
+
+        .checklist-item.drag-over {
+            border-color: var(--primary-color);
+            background-color: var(--surface-hover);
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.2);
+        }
+
+        .checklist-item.fade-out {
+            opacity: 0;
+            transform: scale(0.95) translateY(10px);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(12px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .checklist-item:hover {
+            background-color: var(--surface-hover);
+            border-color: rgba(255, 255, 255, 0.1);
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .prefix-badge {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            min-width: 24px;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .drag-handle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            cursor: grab;
+            user-select: none;
+            flex-shrink: 0;
+            opacity: 0.5;
+            transition: var(--transition);
+        }
+
+        .checklist-item:hover .drag-handle {
+            opacity: 1;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .checklist-item input[type="checkbox"] {
+            appearance: none;
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            background-color: var(--surface-color);
+            cursor: pointer;
+            transition: var(--transition);
+            flex-shrink: 0;
+        }
+
+        .checklist-item input[type="checkbox"]:checked {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='white' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M12.207 4.793a1 1 0 010 1.414l-5 5a1 1 0 01-1.414 0l-2-2a1 1 0 011.414-1.414L6.5 9.086l4.293-4.293a1 1 0 011.414 0z'/%3E%3C/svg%3E");
+            background-size: 14px;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .checklist-item span.item-text {
+            font-size: 0.95rem;
+            word-break: break-word;
+            transition: var(--transition);
+        }
+
+        .checklist-item.completed span.item-text {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .checklist-item input[type="text"].edit-input {
+            flex: 1;
+            background: var(--bg-color);
+            border: 1px solid var(--primary-color);
+            color: var(--text-color);
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.15);
+        }
+
+        .menu-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .menu-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .menu-btn:hover {
+            color: var(--text-color);
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-menu {
+            position: fixed;
+            background-color: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            display: none;
+            flex-direction: column;
+            width: 120px;
+            z-index: 99999;
+            overflow: hidden;
+            animation: menuPop 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes menuPop {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(-5px);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1) translateY(0);
+            }
+        }
+
+        .dropdown-menu.show {
+            display: flex;
+        }
+
+        .dropdown-menu button {
+            background: none;
+            border: none;
+            color: var(--text-color);
+            padding: 10px 14px;
+            text-align: left;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: var(--surface-hover);
+        }
+
+        .dropdown-menu button.delete-option {
+            color: var(--danger-color);
+        }
+
+        .dropdown-menu button.delete-option:hover {
+            background-color: var(--danger-bg);
+        }
+
+        .empty-state {
+            color: var(--text-secondary);
+            font-style: italic;
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 32px;
+            background: rgba(255, 255, 255, 0.01);
+            border: 1px dashed var(--border-color);
+            border-radius: var(--radius);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>Notepad Checklist</h1>
+            <div class="header-right">
+                <div id="statsBadge" class="stats">0 / 0 completed</div>
+                
+                <div class="settings-dropdown-wrapper">
+                    <button id="settingsBtn" class="settings-btn">⚙️ Settings</button>
+                    <div id="settingsMenu" class="settings-menu">
+                        <label>Prefix Style:</label>
+                        <div style="padding: 0 10px 10px 10px;">
+                            <select id="prefixStyleSelect">
+                                <option value="none">None</option>
+                                <option value="numbers">Numbers (1, 2, 3)</option>
+                                <option value="bullets">Bullets (•)</option>
+                                <option value="letters">Letters (a, b, c)</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        
+        <div class="workspace" id="workspaceArea">
+            <div class="input-group">
+                <textarea id="textInput" placeholder="Paste your text lines here, or drag & drop ANY file (txt, json, csv, code files, etc.) right here..."></textarea>
+            </div>
+            
+            <div class="actions-bar">
+                <button id="convertBtn" class="primary-btn">Convert to Checklist</button>
+                <div class="btn-group">
+                    <button id="clearAllBtn" class="secondary-btn" title="Clear all saved data">Clear All</button>
+                    <button id="clearInputBtn" class="clear-text-btn">Clear text</button>
+                </div>
+            </div>
+            
+            <div id="checklistContainer" class="checklist-container">
+                <div class="empty-state">Your clean structured checklist will appear here.</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="globalDropdown" class="dropdown-menu">
+        <button id="dropdownEditBtn">Edit item</button>
+        <button id="dropdownDeleteBtn" class="delete-option">Delete</button>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const convertBtn = document.getElementById('convertBtn');
+        const clearInputBtn = document.getElementById('clearInputBtn');
+        const clearAllBtn = document.getElementById('clearAllBtn');
+        const checklistContainer = document.getElementById('checklistContainer');
+        const statsBadge = document.getElementById('statsBadge');
+        
+        const settingsBtn = document.getElementById('settingsBtn');
+        const settingsMenu = document.getElementById('settingsMenu');
+        const prefixStyleSelect = document.getElementById('prefixStyleSelect');
+        const workspaceArea = document.getElementById('workspaceArea');
+
+        const globalDropdown = document.getElementById('globalDropdown');
+        const dropdownEditBtn = document.getElementById('dropdownEditBtn');
+        const dropdownDeleteBtn = document.getElementById('dropdownDeleteBtn');
+
+        let checklistData = [];
+        let prefixStyle = 'none';
+        let draggedIndex = null;
+        let activeMenuIndex = null;
+
+        function loadStorage() {
+            const savedData = localStorage.getItem('notepad_checklist_data');
+            const savedStyle = localStorage.getItem('notepad_prefix_style');
+            if (savedData) {
+                try {
+                    checklistData = JSON.parse(savedData);
+                } catch (e) {
+                    checklistData = [];
+                }
+            }
+            if (savedStyle) {
+                prefixStyle = savedStyle;
+                prefixStyleSelect.value = savedStyle;
+            }
+            renderChecklist();
+        }
+
+        function saveStorage() {
+            localStorage.setItem('notepad_checklist_data', JSON.stringify(checklistData));
+            localStorage.setItem('notepad_prefix_style', prefixStyle);
+        }
+
+        function updateStats() {
+            const total = checklistData.length;
+            const completed = checklistData.filter(item => item.completed).length;
+            statsBadge.textContent = total === 0 ? '0 / 0 completed' : `${completed} / ${total} completed`;
+        }
+
+        function getPrefixString(index) {
+            if (prefixStyle === 'numbers') {
+                return `${index + 1}.`;
+            } else if (prefixStyle === 'bullets') {
+                return '•';
+            } else if (prefixStyle === 'letters') {
+                return `${String.fromCharCode(97 + (index % 26))}.`;
+            }
+            return '';
+        }
+
+        function renderChecklist() {
+            closeContextMenus();
+            checklistContainer.innerHTML = '';
+            updateStats();
+            saveStorage();
+
+            if (checklistData.length === 0) {
+                checklistContainer.innerHTML = '<div class="empty-state">Your clean structured checklist will appear here.</div>';
+                return;
+            }
+
+            checklistData.forEach((item, index) => {
+                const itemDiv = document.createElement('div');
+                itemDiv.className = `checklist-item ${item.completed ? 'completed' : ''}`;
+                itemDiv.setAttribute('draggable', 'true');
+                itemDiv.dataset.index = index;
+
+                itemDiv.addEventListener('dragstart', (e) => {
+                    closeContextMenus();
+                    draggedIndex = index;
+                    e.dataTransfer.effectAllowed = 'move';
+                    setTimeout(() => itemDiv.classList.add('dragging'), 0);
+                });
+
+                itemDiv.addEventListener('dragend', () => {
+                    itemDiv.classList.remove('dragging');
+                    draggedIndex = null;
+                    clearDragOverStyles();
+                });
+
+                itemDiv.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                    itemDiv.classList.add('drag-over');
+                });
+
+                itemDiv.addEventListener('dragleave', () => {
+                    itemDiv.classList.remove('drag-over');
+                });
+
+                itemDiv.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    itemDiv.classList.remove('drag-over');
+                    if (draggedIndex !== null && draggedIndex !== index) {
+                        const movedItem = checklistData.splice(draggedIndex, 1)[0];
+                        checklistData.splice(index, 0, movedItem);
+                        renderChecklist();
+                    }
+                });
+
+                const leftDiv = document.createElement('div');
+                leftDiv.className = 'item-left';
+
+                const dragHandle = document.createElement('span');
+                dragHandle.className = 'drag-handle';
+                dragHandle.textContent = '⋮⋮';
+
+                const prefixText = getPrefixString(index);
+                if (prefixText) {
+                    const prefixBadge = document.createElement('span');
+                    prefixBadge.className = 'prefix-badge';
+                    prefixBadge.textContent = prefixText;
+                    leftDiv.appendChild(prefixBadge);
+                }
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.checked = item.completed;
+                checkbox.addEventListener('change', () => {
+                    item.completed = checkbox.checked;
+                    if (item.completed) {
+                        itemDiv.classList.add('completed');
+                    } else {
+                        itemDiv.classList.remove('completed');
+                    }
+                    updateStats();
+                    saveStorage();
+                });
+
+                if (item.isEditing) {
+                    const editInput = document.createElement('input');
+                    editInput.type = 'text';
+                    editInput.className = 'edit-input';
+                    editInput.value = item.text;
+
+                    editInput.addEventListener('keydown', (e) => {
+                        if (e.key === 'Enter') {
+                            saveEdit(index, editInput.value);
+                        } else if (e.key === 'Escape') {
+                            item.isEditing = false;
+                            renderChecklist();
+                        }
+                    });
+
+                    editInput.addEventListener('blur', () => {
+                        saveEdit(index, editInput.value);
+                    });
+
+                    leftDiv.appendChild(dragHandle);
+                    leftDiv.appendChild(checkbox);
+                    leftDiv.appendChild(editInput);
+                    itemDiv.appendChild(leftDiv);
+                    checklistContainer.appendChild(itemDiv);
+                    editInput.focus();
+                    return;
+                }
+
+                const label = document.createElement('span');
+                label.className = 'item-text';
+                label.textContent = item.text;
+
+                leftDiv.appendChild(dragHandle);
+                leftDiv.appendChild(checkbox);
+                leftDiv.appendChild(label);
+
+                const menuWrapper = document.createElement('div');
+                menuWrapper.className = 'menu-wrapper';
+
+                const menuBtn = document.createElement('button');
+                menuBtn.className = 'menu-btn';
+                menuBtn.textContent = '⋮';
+
+                menuBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    if (activeMenuIndex === index) {
+                        closeContextMenus();
+                    } else {
+                        openMenuFor(index, menuBtn);
+                    }
+                });
+
+                menuWrapper.appendChild(menuBtn);
+                itemDiv.appendChild(leftDiv);
+                itemDiv.appendChild(menuWrapper);
+                checklistContainer.appendChild(itemDiv);
+            });
+        }
+
+        function openMenuFor(index, buttonEl) {
+            activeMenuIndex = index;
+            settingsMenu.classList.remove('show'); // close settings when item menu opens
+            const rect = buttonEl.getBoundingClientRect();
+            
+            globalDropdown.style.top = `${rect.bottom + 6}px`;
+            globalDropdown.style.left = `${rect.right - 120}px`;
+            globalDropdown.classList.add('show');
+        }
+
+        function closeContextMenus() {
+            globalDropdown.classList.remove('show');
+            activeMenuIndex = null;
+        }
+
+        // Settings toggle (isolated so clicking inside menu or selecting option keeps it open)
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            closeContextMenus();
+            settingsMenu.classList.toggle('show');
+        });
+
+        // Prevent settings menu from closing when interacting with its contents (like select dropdown)
+        settingsMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        prefixStyleSelect.addEventListener('change', (e) => {
+            prefixStyle = e.target.value;
+            renderChecklist();
+            // Keep settings menu open after changing selection
+            settingsMenu.classList.add('show');
+        });
+
+        dropdownEditBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (activeMenuIndex !== null) {
+                const idx = activeMenuIndex;
+                closeContextMenus();
+                checklistData[idx].isEditing = true;
+                renderChecklist();
+            }
+        };
+
+        dropdownDeleteBtn.onclick = (e) => {
+            e.stopPropagation();
+            if (activeMenuIndex !== null) {
+                const idx = activeMenuIndex;
+                const itemDivs = checklistContainer.children;
+                if (itemDivs[idx]) {
+                    itemDivs[idx].classList.add('fade-out');
+                    setTimeout(() => {
+                        closeContextMenus();
+                        checklistData.splice(idx, 1);
+                        renderChecklist();
+                    }, 200);
+                }
+            }
+        };
+
+        function clearDragOverStyles() {
+            document.querySelectorAll('.checklist-item').forEach(item => {
+                item.classList.remove('drag-over');
+            });
+        }
+
+        function saveEdit(index, newText) {
+            const trimmed = newText.trim();
+            if (trimmed.length > 0) {
+                checklistData[index].text = trimmed;
+            }
+            checklistData[index].isEditing = false;
+            renderChecklist();
+        }
+
+        // Global click handler only closes dropdowns if clicking outside settings or item menus
+        window.addEventListener('click', () => {
+            closeContextMenus();
+            settingsMenu.classList.remove('show');
+        });
+
+        checklistContainer.addEventListener('scroll', () => {
+            closeContextMenus();
+        });
+
+        function processTextToLines(rawText) {
+            const lines = rawText.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+            if (lines.length > 0) {
+                const existingTexts = new Set(checklistData.map(item => item.text));
+                const uniqueLines = [];
+
+                lines.forEach(line => {
+                    if (!existingTexts.has(line)) {
+                        existingTexts.add(line);
+                        uniqueLines.push(line);
+                    }
+                });
+
+                if (uniqueLines.length > 0) {
+                    const newItems = uniqueLines.map(line => ({
+                        text: line,
+                        completed: false,
+                        isEditing: false
+                    }));
+                    checklistData = checklistData.concat(newItems);
+                    renderChecklist();
+                }
+            }
+        }
+
+        convertBtn.addEventListener('click', () => {
+            processTextToLines(textInput.value);
+            textInput.value = '';
+        });
+
+        clearInputBtn.addEventListener('click', () => {
+            textInput.value = '';
+            textInput.focus();
+        });
+
+        clearAllBtn.addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all saved checklist items?')) {
+                checklistData = [];
+                renderChecklist();
+            }
+        });
+
+        workspaceArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            workspaceArea.classList.add('drag-file-over');
+        });
+
+        workspaceArea.addEventListener('dragleave', () => {
+            workspaceArea.classList.remove('drag-file-over');
+        });
+
+        workspaceArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            workspaceArea.classList.remove('drag-file-over');
+
+            const files = e.dataTransfer.files;
+            if (files && files.length > 0) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    
+                    if (file.type.startsWith('text/') || file.name.match(/\.(txt|md|json|csv|js|html|css|xml|log|py|cpp|c|java|ts)$/i)) {
+                        reader.onload = (event) => {
+                            processTextToLines(event.target.result);
+                        };
+                        reader.readAsText(file);
+                    } else {
+                        const metaText = `[File] ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                        processTextToLines(metaText);
+                    }
+                });
+            }
+        });
+
+        loadStorage();
+    </script>
+</body>
+</html>
