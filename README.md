@@ -37,4 +37,4 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone [https://github.com/yourusername/streamline-checklist.git](https://github.com/yourusername/streamline-checklist.git)
+   git clone [https://github.com/yourusername/streamline-checklist.git](https://github.com/Zeroid-Sannn/streamline-checklist.git)
